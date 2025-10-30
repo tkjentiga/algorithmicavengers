@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithmic Avengers | Top-Up dan Perangkat Jaringan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Mengatur font default dan tema terang/merah-kuning */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; /* Light background: gray-50 */
+            color: #1f2937; /* Dark text: gray-800 */
+            padding-top: 64px; /* Space for fixed header */
+            padding-bottom: 64px; /* Space for fixed footer/nav */
+        }
+        /* Style untuk Header yang tetap */
+        .header-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        /* Style untuk Navigasi Bawah yang tetap (Mobile) */
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        /* Sembunyikan Navigasi Bawah di desktop */
+        @media (min-width: 768px) {
+            .footer-nav {
+                display: none;
+            }
+            body {
+                padding-bottom: 0; /* No need for bottom padding on desktop */
+            }
+        }
+        /* Style untuk Poster agar mudah dilihat */
+        .poster-container img {
+            max-height: 80vh; /* Agar poster tidak terlalu panjang di layar */
+            width: auto;
+        }
+        @media (max-width: 640px) {
+            .poster-container img {
+                 max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header (Selalu Terlihat) - Kuning Gelap/Emas -->
+    <header id="header" class="header-fixed bg-amber-500 border-b border-amber-600 shadow-xl"></header>
+
+    <!-- Konten Utama -->
+    <main id="app-container" class="p-4 md:p-8 max-w-7xl mx-auto"></main>
+
+    <!-- Navigasi Bawah (Hanya terlihat di Mobile) - Kuning Gelap/Emas -->
+    <footer id="footer-nav" class="footer-nav bg-amber-500 border-t border-amber-600 md:hidden"></footer>
+
+    <!-- Firebase SDK Imports (Module Script) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // setLogLevel('Debug'); // Uncomment for debugging
+
+        // --- GLOBAL SETUP (MANDATORY CANVAS VARIABLES) ---
+        // Variabel-variabel ini disediakan secara otomatis oleh lingkungan Canvas.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-algorithmic-avengers';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth;
+        let userId = null; // ID Pengguna yang terautentikasi atau anonim
+        let isAuthReady = false; // Flag untuk menandakan autentikasi selesai
+
+        // --- DATA MOCKUP (Anggota Tim) ---
+        const teamMembers = [
+            { name: "Muhammad Farel", position: "Ketua (Chief Executive Officer)", photo: "farel.jpg" },
+            { name: "Ardillah Oktaviani", position: "Anggota (Network Architect)", photo: "ardillah.jpg" },
+            { name: "Susilowati", position: "Anggota (Marketing & Sales Manager)", photo: "susilowati.jpg" },
+            { name: "Jumanah", position: "Anggota (Content Specialist)", photo: "jumanah.jpg" },
+            { name: "Ade Baehaqi", position: "Anggota (Technical Support)", photo: "ade.jpg" },
+        ];
+        
+        // --- INITIAL PRODUCTS MOCKUP (Kategori: 'TopUp', 'Jasa', 'Perangkat') ---
+        const initialProducts = [
+            // Jasa Custom
+            { name: "Pembuatan Undangan Custom Digital", price: 0, description: "Jasa desain dan pembuatan undangan pernikahan digital dan acara custom lainnya. Harga disesuaikan kompleksitas desain.", category: 'Jasa' },
+
+            // Top-Up & Layanan Jaringan
+            { name: "Pulsa", price: 5000, description: "Top-up pulsa semua operator seluler. Minimal Rp5.000.", category: 'TopUp' },
+            { name: "Paket Internet", price: 10000, description: "Beragam pilihan paket data kecepatan tinggi (4G/5G). Minimal Rp10.000.", category: 'TopUp' },
+            { name: "Top Up Dompet Digital", price: 20000, description: "Isi saldo e-wallet (GoPay, Dana, OVO, dll). Minimal Rp20.000.", category: 'TopUp' },
+            { name: "Top Up All Game", price: 10000, description: "Top-up diamond, UC, dan mata uang game populer. Minimal Rp10.000.", category: 'TopUp' },
+            { name: "Token Listrik", price: 20000, description: "Pembelian token listrik PLN prabayar (20k - 1000k).", category: 'TopUp' },
+            
+            // Perangkat Keras
+            { name: "Konektor RJ45", price: 500, description: "Konektor RJ45 berkualitas untuk kabel UTP. Harga per unit.", category: 'Perangkat' },
+            { name: "Kabel UTP Meteran", price: 3000, description: "Kabel UTP Cat6/Cat5e kualitas terbaik, harga per meter.", category: 'Perangkat' },
+            { name: "Flashdisk Berbagai Ukuran", price: 50000, description: "Flashdisk 16GB/32GB/64GB, untuk penyimpanan data portabel.", category: 'Perangkat' },
+        ];
+
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            currentView: 'home',
+            products: [],
+            orders: [],
+            selectedProduct: null,
+            loading: true,
+            error: null,
+            cmsMode: 'add', // 'add' or 'edit'
+            hasAttemptedSeeding: false // Flag agar seeding hanya dilakukan sekali
+        };
+
+        const appContainer = document.getElementById('app-container');
+        const headerElement = document.getElementById('header');
+        const footerNavElement = document.getElementById('footer-nav');
+
+        // --- FIREBASE INITIALIZATION & AUTHENTICATION ---
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.error("Firebase initialization failed:", e);
+        }
+
+        async function initializeAuth() {
+            if (!auth) return;
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    // Masuk sebagai anonim jika tidak ada token kustom
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                state.error = "Gagal autentikasi: " + error.message;
+            }
+        }
+
+        // Listener status autentikasi
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid; // Set userId ke UID yang sebenarnya
+            } else {
+                // Walaupun anonim, Firebase tetap memberikan UID. Ini hanya fallback.
+                userId = 'anonymous-' + crypto.randomUUID();
+            }
+            isAuthReady = true;
+            state.loading = false;
+            console.log("Auth Ready. User ID:", userId);
+            
+            // Mulai mendengarkan data HANYA setelah Auth Ready
+            if (db && user) {
+                listenToProducts();
+                listenToOrders();
+            } else if (!user) {
+                console.warn("Tidak ada objek pengguna setelah inisialisasi auth.");
+                state.error = "Gagal mengautentikasi pengguna untuk database.";
+            }
+
+            renderApp();
+        });
+        
+        initializeAuth();
+
+
+        // --- FIRESTORE FUNCTIONS (Menggunakan Firestore sebagai Database SpreadSheet pengganti) ---
+
+        const getPublicCollectionPath = (collectionName) => 
+            `artifacts/${appId}/public/data/${collectionName}`;
+        
+        async function seedInitialProducts(productsRef) {
+            console.log("Database products collection is empty. Seeding initial products.");
+            try {
+                for (const product of initialProducts) {
+                    await addDoc(productsRef, {
+                        ...product,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                }
+                showMessage('Database diinisialisasi dengan Layanan dan Perangkat Awal.', 'info');
+            } catch (error) {
+                console.error("Error seeding initial products:", error);
+                showMessage('Gagal inisialisasi produk awal.', 'error');
+            }
+        }
+
+
+        function listenToProducts() {
+            // PRODUCTS adalah data PUBLIK, tetapi memerlukan pengguna terautentikasi (bahkan anonim)
+            if (!isAuthReady || !db || !auth.currentUser) {
+                console.log("Skipping product listener: Auth not ready or user not logged in.");
+                return;
+            }
+
+            const productsRef = collection(db, getPublicCollectionPath('products'));
+            
+            onSnapshot(productsRef, (snapshot) => {
+                const products = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })).sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0)); 
+                
+                if (products.length === 0 && !state.hasAttemptedSeeding) {
+                    state.hasAttemptedSeeding = true;
+                    seedInitialProducts(productsRef);
+                }
+
+                state.products = products;
+                if (state.currentView === 'home' || state.currentView === 'cms') {
+                    renderApp();
+                }
+            }, (error) => {
+                console.error("Error listening to products:", error);
+                state.error = "Gagal memuat produk: Izin mungkin bermasalah.";
+                renderApp();
+            });
+        }
+
+        function listenToOrders() {
+            // ORDERS adalah data PRIBADI, jalur koleksi harus sesuai dengan UID pengguna yang terautentikasi
+            const currentUid = auth.currentUser?.uid;
+            if (!isAuthReady || !db || !currentUid) {
+                console.log("Skipping order listener: Auth not ready or user ID missing.");
+                return;
+            }
+            
+            // Jalur koleksi pribadi wajib: artifacts/{appId}/users/{userId}/orders
+            const ordersRef = collection(db, `artifacts/${appId}/users/${currentUid}/orders`);
+            
+            onSnapshot(ordersRef, (snapshot) => {
+                const orders = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })).sort((a, b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0)); 
+
+                state.orders = orders;
+                if (state.currentView === 'cms') {
+                    renderApp();
+                }
+            }, (error) => {
+                console.error("Error listening to orders:", error);
+                state.error = "Gagal memuat pesanan: Izin mungkin bermasalah.";
+                renderApp();
+            });
+        }
+
+        // Mencatat pesanan ke database (untuk admin/CMS)
+        async function recordOrder(orderData) {
+            const currentUid = auth.currentUser?.uid;
+            if (!isAuthReady || !db || !currentUid) {
+                console.error("Tidak dapat mencatat pesanan: Pengguna belum terautentikasi.");
+                showMessage('Gagal mencatat pesanan: Autentikasi diperlukan.', 'error');
+                return;
+            }
+            try {
+                const ordersRef = collection(db, `artifacts/${appId}/users/${currentUid}/orders`);
+                await addDoc(ordersRef, {
+                    ...orderData,
+                    timestamp: serverTimestamp(),
+                    status: 'Menunggu Konfirmasi'
+                });
+            } catch (error) {
+                console.error("Error recording order:", error);
+                showMessage('Gagal mencatat pesanan ke database.', 'error');
+            }
+        }
+
+        // --- CMS CRUD FUNCTIONS ---
+
+        async function handleAddOrUpdateProduct(productData, isUpdate = false) {
+            if (!isAuthReady || !db || !auth.currentUser) {
+                showMessage('Gagal menyimpan: Autentikasi diperlukan.', 'error');
+                return;
+            }
+
+            try {
+                const productsRef = collection(db, getPublicCollectionPath('products'));
+                
+                if (isUpdate && productData.id) {
+                    const docRef = doc(db, getPublicCollectionPath('products'), productData.id);
+                    await updateDoc(docRef, { 
+                        name: productData.name, 
+                        price: productData.price, 
+                        description: productData.description,
+                        category: productData.category,
+                        updatedAt: serverTimestamp()
+                    });
+                    showMessage('Produk berhasil diperbarui.', 'success');
+                } else {
+                    await addDoc(productsRef, {
+                        name: productData.name,
+                        price: productData.price,
+                        description: productData.description,
+                        category: productData.category,
+                        createdAt: serverTimestamp()
+                    });
+                    showMessage('Produk baru berhasil ditambahkan.', 'success');
+                }
+
+                // Reset CMS state
+                state.selectedProduct = null;
+                state.cmsMode = 'add';
+                renderApp();
+
+            } catch (error) {
+                console.error("Error saving product:", error);
+                showMessage('Gagal menyimpan produk.', 'error');
+            }
+        }
+
+        async function handleDeleteProduct(productId) {
+            if (!isAuthReady || !db || !auth.currentUser || !window.confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
+                if (!auth.currentUser) showMessage('Gagal menghapus: Autentikasi diperlukan.', 'error');
+                return;
+            }
+            try {
+                const docRef = doc(db, getPublicCollectionPath('products'), productId);
+                await deleteDoc(docRef);
+                showMessage('Produk berhasil dihapus.', 'success');
+                // Tidak perlu renderApp() karena onSnapshot yang akan melakukannya
+            } catch (error) {
+                console.error("Error deleting product:", error);
+                showMessage('Gagal menghapus produk.', 'error');
+            }
+        }
+
+
+        // --- UTILITY FUNCTIONS ---
+
+        // Simple message box (replaces alert)
+        function showMessage(message, type = 'info') {
+            const messageBox = document.createElement('div');
+            messageBox.className = `fixed top-16 right-4 p-3 rounded-lg shadow-xl text-white transition-opacity duration-300 opacity-0 transform translate-y-4 z-50 
+                ${type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600'}`;
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
+            
+            setTimeout(() => {
+                messageBox.classList.remove('opacity-0', 'translate-y-4');
+                messageBox.classList.add('opacity-100', 'translate-y-0');
+            }, 10);
+
+            setTimeout(() => {
+                messageBox.classList.remove('opacity-100', 'translate-y-0');
+                messageBox.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => messageBox.remove(), 300);
+            }, 4000);
+        }
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(number);
+        }
+        
+        function getPriceDisplay(price) {
+            // Jika harga 0, tampilkan "Hubungi Kami (Cek Harga)"
+            return price > 0 ? formatRupiah(price) : 'Hubungi Kami (Cek Harga)';
+        }
+        
+        function getCategoryDisplayName(category) {
+            switch (category) {
+                case 'TopUp': return 'Top-Up/Jaringan';
+                case 'Jasa': return 'Layanan Jasa';
+                case 'Perangkat': return 'Perangkat Keras';
+                default: return 'Lainnya';
+            }
+        }
+
+
+        // --- ORDERING LOGIC (Pemesanan WhatsApp Otomatis) ---
+
+        function handleOrder(product) {
+            const currentUid = auth.currentUser?.uid || 'Anonim';
+            const quantity = 1; // Simplifikasi, anggap jumlah selalu 1
+            
+            // 1. Generate WhatsApp Link
+            const whatsappNumber = "6281234567890"; // Ganti dengan nomor WhatsApp admin Algorithmic Avengers
+            let message = `Halo Algorithmic Avengers!\n\nSaya ingin memesan produk/layanan ini:\n\n`;
+            message += `*Nama Produk:* ${product.name}\n`;
+            message += `*Deskripsi:* ${product.description}\n`;
+            
+            // Tampilkan harga atau instruksi
+            if (product.price > 0) {
+                message += `*Harga:* ${formatRupiah(product.price)} (Minimal)\n`;
+            } else {
+                message += `*Harga:* Hubungi Kami (Cek Harga)\n`;
+            }
+            
+            message += `*Jumlah:* ${quantity}\n\n`;
+            
+            // Tambahkan instruksi spesifik berdasarkan kategori
+            if (product.category === 'TopUp') {
+                if (product.name.includes("Tagihan")) {
+                     message += `Mohon bantu proses pembayaran tagihan saya. (Sertakan nomor pelanggan/meteran Anda).\n\n`;
+                }
+                else if (product.name === "Pulsa" || product.name === "Paket Internet" || product.name === "Token Listrik") {
+                    message += `Saya ingin ${product.name} dengan nominal [Sebutkan Nominal] untuk ID/Nomor [Sebutkan Nomor HP/Meteran Anda].\n\n`;
+                } else if (product.name.includes("Top Up")) {
+                    message += `Saya ingin Top Up ${product.name.includes("Dompet") ? "Dompet Digital" : "Game"} senilai [Sebutkan Nominal] untuk ID/Nomor [Sebutkan ID/Nomor Anda].\n\n`;
+                }
+            } else if (product.category === 'Jasa') {
+                if (product.name === "Pembuatan Undangan Custom Digital") {
+                    message += `Mohon kirimkan detail dan contoh desain untuk Pembuatan Undangan Custom Digital. (Sertakan tanggal acara/konsep Anda).\n\n`;
+                } else {
+                    message += `Mohon konfirmasi ketersediaan dan detail untuk layanan jasa ini. Terima kasih!`;
+                }
+            } else if (product.category === 'Perangkat') {
+                 message += `Mohon konfirmasi ketersediaan stok dan harga final perangkat keras ini. Terima kasih!`;
+            } else {
+                message += `Mohon konfirmasi ketersediaan dan total biaya. Terima kasih!`;
+            }
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+            // 2. Record Order (Simulasi Database) - PENTING: Dicatat di Firestore
+            const orderData = {
+                productId: product.id,
+                productName: product.name,
+                price: product.price, 
+                quantity: quantity,
+                customerNote: "Pemesanan otomatis via link WA",
+                productType: getCategoryDisplayName(product.category), 
+                buyerId: currentUid,
+                buyerUid: currentUid
+            };
+            recordOrder(orderData);
+            
+            // 3. Open WhatsApp
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // --- GEMINI API INTEGRATION ---
+        
+        const apiKey = ""; // API Key for Gemini is provided at runtime.
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        // --- GEMINI API UTILITY ---
+        async function fetchWithExponentialBackoff(url, options, maxRetries = 5) {
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        if (response.status === 429 && attempt < maxRetries - 1) { // Rate limit or transient error
+                            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+                            console.warn(`Rate limit hit, retrying in ${delay / 1000}s...`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            continue;
+                        }
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                } catch (error) {
+                    console.error(`Attempt ${attempt + 1} failed: ${error.message}`);
+                    if (attempt === maxRetries - 1) throw error;
+                    // No need for a delay here if the error is not 429, but sticking to general backoff for robustness
+                    if (!error.message.includes('Rate limit')) {
+                        const delay = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            }
+        }
+
+        // --- GEMINI FEATURE: Product Description Enhancer ---
+        async function generateDescription(productName, productCategory) {
+            const textarea = document.getElementById('description');
+            const generateBtn = document.getElementById('generate-desc-btn');
+            
+            if (!textarea || !generateBtn) return;
+
+            if (!productName) {
+                showMessage('Nama produk diperlukan untuk menghasilkan deskripsi.', 'error');
+                return;
+            }
+
+            const originalHTML = generateBtn.innerHTML;
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 mr-2 animate-spin"></i> Memproses...';
+            lucide.createIcons();
+
+            const categoryName = getCategoryDisplayName(productCategory);
+            
+            const systemPrompt = `Anda adalah Copywriter E-commerce profesional untuk toko komputer dan jaringan 'Algorithmic Avengers'. Tugas Anda adalah membuat deskripsi produk yang menarik, persuasif, dan informatif. Deskripsi harus ringkas (maksimal 4 kalimat), menggunakan bahasa Indonesia yang lugas dan profesional, serta menonjolkan manfaat.`;
+            const userQuery = `Buatkan deskripsi produk untuk: ${productName}. Kategori: ${categoryName}. Fokus pada keandalan dan kecepatan layanan/perangkat.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            try {
+                const response = await fetchWithExponentialBackoff(GEMINI_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const generatedText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (generatedText) {
+                    textarea.value = generatedText.trim();
+                    showMessage('Deskripsi berhasil dibuat oleh Gemini! Silakan tinjau dan simpan.', 'success');
+                } else {
+                    throw new Error('Respons Gemini tidak valid.');
+                }
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                showMessage('Gagal menghasilkan deskripsi. Cek koneksi atau coba lagi.', 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = originalHTML;
+                lucide.createIcons();
+            }
+        }
+        window.generateDescription = generateDescription;
+
+
+        // --- RENDERING FUNCTIONS ---
+
+        function renderHeader() {
+            headerElement.innerHTML = `
+                <div class="max-w-7xl mx-auto flex justify-between items-center h-16 px-4 md:px-8">
+                    <div class="flex items-center space-x-2">
+                        <!-- Logo menggunakan gambar lokal (Harus ada file logo.png di folder yang sama) -->
+                        <img src="logo.png" onerror="this.onerror=null;this.src='https://placehold.co/40x40/dc2626/ffffff?text=AA';" 
+                            alt="Logo Algorithmic Avengers" class="w-10 h-10 rounded-full object-cover bg-white p-1 shadow-md">
+                        <h1 class="text-xl font-extrabold text-red-900 tracking-wider hidden sm:block">Algorithmic Avengers</h1>
+                        <h1 class="text-xl font-extrabold text-red-900 tracking-wider sm:hidden">Aveng'rs</h1>
+                    </div>
+                    
+                    <!-- Menu Desktop -->
+                    <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                        <button onclick="navigate('home')" class="py-2 px-3 rounded-full transition duration-300 ${state.currentView === 'home' ? 'bg-red-600 text-white shadow-lg font-bold hover:bg-red-700' : 'text-red-900 hover:text-red-700 hover:bg-amber-100'}">Beranda</button>
+                        <button onclick="navigate('about')" class="py-2 px-3 rounded-full transition duration-300 ${state.currentView === 'about' ? 'bg-red-600 text-white shadow-lg font-bold hover:bg-red-700' : 'text-red-900 hover:text-red-700 hover:bg-amber-100'}">Tentang Kami</button>
+                        <button onclick="navigate('cms')" class="py-2 px-3 rounded-full transition duration-300 ${state.currentView === 'cms' ? 'bg-red-600 text-white shadow-lg font-bold hover:bg-red-700' : 'text-red-900 hover:text-red-700 hover:bg-amber-100'}">CMS Admin</button>
+                    </nav>
+                </div>
+            `;
+            // Initialize lucide icons
+            lucide.createIcons();
+        }
+
+        function renderFooterNav() {
+            // Footer/Navigasi bawah statis untuk mobile
+            footerNavElement.innerHTML = `
+                <nav class="flex justify-around items-center h-16 w-full max-w-lg mx-auto">
+                    <button onclick="navigate('home')" class="flex flex-col items-center p-2 rounded-lg transition duration-300 ${state.currentView === 'home' ? 'text-white bg-red-600' : 'text-red-900 hover:text-red-700'}">
+                        <i data-lucide="store" class="w-6 h-6"></i>
+                        <span class="text-xs mt-1">Beranda</span>
+                    </button>
+                    <button onclick="navigate('about')" class="flex flex-col items-center p-2 rounded-lg transition duration-300 ${state.currentView === 'about' ? 'text-white bg-red-600' : 'text-red-900 hover:text-red-700'}">
+                        <i data-lucide="users" class="w-6 h-6"></i>
+                        <span class="text-xs mt-1">Tim</span>
+                    </button>
+                    <button onclick="navigate('cms')" class="flex flex-col items-center p-2 rounded-lg transition duration-300 ${state.currentView === 'cms' ? 'text-white bg-red-600' : 'text-red-900 hover:text-red-700'}">
+                        <i data-lucide="settings" class="w-6 h-6"></i>
+                        <span class="text-xs mt-1">CMS</span>
+                    </button>
+                </nav>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderHome() {
+            // Filter products berdasarkan kategori
+            const topUpProducts = state.products.filter(p => p.category === 'TopUp');
+            const customServices = state.products.filter(p => p.category === 'Jasa');
+            const hardwareProducts = state.products.filter(p => p.category === 'Perangkat');
+            
+            appContainer.innerHTML = `
+                <!-- Poster/Pamflet (Potrait/A4 Max Width) - Menggunakan file lokal 80081.jpg -->
+                <div class="flex justify-center mb-8 poster-container">
+                    <img src="80081.jpg" alt="Poster Algorithmic Avengers: Layanan Top-Up dan Jaringan" class="max-w-full rounded-xl shadow-2xl border-4 border-amber-500/50" onerror="this.onerror=null;this.src='https://placehold.co/800x1130/fef3c7/dc2626?text=POSTER+TIDAK+DITEMUKAN';">
+                </div>
+            
+                <h2 class="text-3xl font-extrabold text-red-700 mb-8 border-b-4 border-amber-500 pb-2">Katalog Produk & Layanan</h2>
+
+                <!-- Bagian Top-Up & Jaringan -->
+                <section class="mb-12">
+                    <h3 class="text-2xl font-semibold text-amber-600 mb-4 flex items-center">
+                        <i data-lucide="wifi" class="w-6 h-6 mr-2"></i>
+                        Top-Up & Layanan Jaringan
+                    </h3>
+                    ${topUpProducts.length > 0 ? `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${topUpProducts.map(p => renderProductCard(p)).join('')}
+                        </div>
+                    ` : '<p class="text-gray-500 italic">Belum ada layanan Top-Up yang tersedia.</p>'}
+                </section>
+                
+                <!-- Bagian Layanan Jasa Custom -->
+                <section class="mb-12">
+                    <h3 class="text-2xl font-semibold text-amber-600 mb-4 flex items-center">
+                        <i data-lucide="feather" class="w-6 h-6 mr-2"></i>
+                        Layanan Jasa Custom
+                    </h3>
+                    ${customServices.length > 0 ? `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${customServices.map(p => renderProductCard(p)).join('')}
+                        </div>
+                    ` : '<p class="text-gray-500 italic">Belum ada layanan jasa custom yang tersedia.</p>'}
+                </section>
+
+                <!-- Bagian Perangkat Keras -->
+                <section class="mb-12">
+                    <h3 class="text-2xl font-semibold text-amber-600 mb-4 flex items-center">
+                        <i data-lucide="cpu" class="w-6 h-6 mr-2"></i>
+                        Perangkat Keras Komputer
+                    </h3>
+                    ${hardwareProducts.length > 0 ? `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${hardwareProducts.map(p => renderProductCard(p)).join('')}
+                        </div>
+                    ` : '<p class="text-gray-500 italic">Belum ada perangkat keras yang tersedia.</p>'}
+                </section>
+
+                ${state.products.length === 0 && !state.loading ? '<div class="text-center py-12 text-gray-500">Tidak ada produk. Silakan tambahkan melalui menu CMS.</div>' : ''}
+            `;
+            lucide.createIcons();
+        }
+
+        function renderProductCard(product) {
+            let icon;
+            switch (product.category) {
+                case 'TopUp':
+                    icon = 'plug';
+                    break;
+                case 'Jasa':
+                    icon = 'feather'; 
+                    if (product.name.includes("Undangan")) {
+                        icon = 'mail-check';
+                    }
+                    break;
+                case 'Perangkat':
+                    icon = 'hard-drive';
+                    break;
+                default:
+                    icon = 'box';
+            }
+
+            const priceDisplay = getPriceDisplay(product.price);
+            
+            // Menggunakan JSON.stringify dan replace untuk passing object ke onclick
+            return `
+                <div class="bg-white p-5 rounded-xl shadow-lg border border-gray-200 hover:shadow-2xl hover:border-red-500 transition duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center mb-4">
+                        <div class="p-3 bg-amber-500 rounded-full text-red-900 mr-4 shadow-md">
+                            <i data-lucide="${icon}" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-gray-900">${product.name}</h4>
+                    </div>
+                    <p class="text-gray-600 mb-4 text-sm">${product.description || 'Deskripsi belum tersedia.'}</p>
+                    <div class="flex justify-between items-center mt-6">
+                        <span class="text-xl font-extrabold ${product.price > 0 ? 'text-red-600' : 'text-gray-500 italic'}">${priceDisplay}</span>
+                        <button 
+                            onclick="handleOrderFromCard(${JSON.stringify(product).replace(/"/g, '&quot;')})" 
+                            class="bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-full shadow-lg transition duration-300 flex items-center"
+                        >
+                            <i data-lucide="zap" class="w-4 h-4 mr-2"></i>
+                            Pesan via WA
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Expose handleOrder to the global scope for event handlers
+        window.handleOrderFromCard = handleOrder;
+
+
+        function renderAbout() {
+            appContainer.innerHTML = `
+                <h2 class="text-3xl font-extrabold text-red-700 mb-8 border-b-4 border-amber-500 pb-2">Tentang Kami: Algorithmic Avengers</h2>
+                <p class="text-gray-700 mb-8 leading-relaxed">
+                    Kami adalah tim profesional yang berdedikasi untuk menyediakan perangkat keras komputer dan layanan top-up jaringan berkualitas tinggi. 
+                    Misi kami adalah memastikan infrastruktur teknologi Anda selalu optimal. Kami percaya pada keandalan, kecepatan, dan pelayanan terbaik.
+                </p>
+
+                <h3 class="text-2xl font-semibold text-amber-600 mb-6 flex items-center">
+                    <i data-lucide="shield-half" class="w-6 h-6 mr-2"></i>
+                    Anggota Pengurus Kami
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                    ${teamMembers.map(member => {
+                        const firstName = member.name.split(' ')[0];
+                        // Menggunakan path lokal dengan fallback placeholder
+                        return `
+                        <div class="bg-white p-6 rounded-xl shadow-xl text-center border-t-4 border-amber-500 hover:shadow-red-300/50 hover:shadow-2xl transition duration-300">
+                            <img 
+                                src="${member.photo}" 
+                                alt="Foto ${member.name}" 
+                                class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-red-500"
+                                onerror="this.onerror=null;this.src='https://placehold.co/100x100/dc2626/ffffff?text=${firstName}';"
+                            >
+                            <h4 class="text-xl font-bold text-gray-900 mb-1">${member.name}</h4>
+                            <p class="text-red-700 font-medium">${member.position}</p>
+                        </div>
+                    `;
+                    }).join('')}
+                </div>
+                
+                <p class="text-sm text-gray-400 mt-8">ID Aplikasi (Untuk Database): <span class="font-mono">${appId}</span></p>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderCMS() {
+            if (!isAuthReady || !auth.currentUser) {
+                appContainer.innerHTML = '<div class="text-center py-12 text-gray-500">Memuat autentikasi, tunggu sebentar...</div>';
+                return;
+            }
+
+            const isEdit = state.cmsMode === 'edit';
+            const currentProduct = state.selectedProduct || {};
+            const currentUid = auth.currentUser.uid;
+
+            // Form Kontrol Produk
+            const productFormHTML = `
+                <div class="bg-white p-6 rounded-xl shadow-xl border border-gray-200 mb-8">
+                    <h3 class="text-xl font-bold text-red-700 mb-4">${isEdit ? 'Edit Produk: ' + currentProduct.name : 'Tambah Produk Baru'}</h3>
+                    <form id="cms-product-form" onsubmit="event.preventDefault(); handleCmsSubmit(this);">
+                        <input type="hidden" name="id" value="${currentProduct.id || ''}">
+                        
+                        <div class="mb-4">
+                            <label for="name" class="block text-gray-700 text-sm font-medium mb-1">Nama Produk/Layanan</label>
+                            <input type="text" id="name" name="name" value="${currentProduct.name || ''}" required class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="category" class="block text-gray-700 text-sm font-medium mb-1">Kategori Produk</label>
+                            <select id="category" name="category" required class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-red-500 focus:border-red-500">
+                                <option value="TopUp" ${currentProduct.category === 'TopUp' ? 'selected' : ''}>Top-Up & Jaringan</option>
+                                <option value="Jasa" ${currentProduct.category === 'Jasa' ? 'selected' : ''}>Layanan Jasa Custom</option>
+                                <option value="Perangkat" ${currentProduct.category === 'Perangkat' ? 'selected' : ''}>Perangkat Keras</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="price" class="block text-gray-700 text-sm font-medium mb-1">Harga (IDR) <span class="font-normal text-gray-500">(Masukkan 0 jika harga disesuaikan tagihan/Jasa Custom)</span></label>
+                            <input type="number" id="price" name="price" value="${currentProduct.price !== undefined ? currentProduct.price : ''}" required min="0" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="description" class="block text-gray-700 text-sm font-medium mb-1 flex justify-between items-center">
+                                <span>Deskripsi Singkat</span>
+                                <button type="button" 
+                                    id="generate-desc-btn"
+                                    onclick="generateDescription(document.getElementById('name').value, document.getElementById('category').value)" 
+                                    class="text-xs bg-red-100 text-red-700 hover:bg-red-200 py-1 px-2 rounded-full font-semibold transition duration-300 flex items-center"
+                                    title="Gunakan AI Gemini untuk membuat deskripsi yang menarik."
+                                >
+                                    <i data-lucide="sparkles" class="w-3 h-3 mr-1"></i>
+                                    Tingkatkan Deskripsi
+                                </button>
+                            </label>
+                            <textarea id="description" name="description" rows="3" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:ring-red-500 focus:border-red-500">${currentProduct.description || ''}</textarea>
+                        </div>
+                        
+                        <div class="flex space-x-4">
+                            <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 flex items-center">
+                                <i data-lucide="${isEdit ? 'save' : 'plus-circle'}" class="w-5 h-5 mr-2"></i>
+                                ${isEdit ? 'Simpan Perubahan' : 'Tambah Produk'}
+                            </button>
+                            ${isEdit ? `<button type="button" onclick="cancelEdit()" class="bg-amber-500 hover:bg-amber-600 text-red-900 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">Batal Edit</button>` : ''}
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            // List Produk
+            const productListHTML = `
+                <div class="mt-10">
+                    <h3 class="text-2xl font-bold text-amber-600 mb-4 flex items-center"><i data-lucide="list-checks" class="w-6 h-6 mr-2"></i> Daftar Produk Aktif (Publik)</h3>
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-xl border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-amber-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Nama</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Kategori</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Harga</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                ${state.products.map(p => {
+                                    let badgeClass = 'bg-gray-100 text-gray-800';
+                                    if (p.category === 'TopUp') badgeClass = 'bg-green-100 text-green-800';
+                                    if (p.category === 'Jasa') badgeClass = 'bg-blue-100 text-blue-800';
+                                    if (p.category === 'Perangkat') badgeClass = 'bg-red-100 text-red-800';
+                                    
+                                    return `
+                                    <tr class="hover:bg-amber-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${p.name}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClass}">
+                                                ${getCategoryDisplayName(p.category)}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm ${p.price > 0 ? 'text-red-600' : 'text-gray-500 italic'}">${getPriceDisplay(p.price)}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            <button onclick="editProduct('${p.id}')" class="text-red-600 hover:text-red-800 p-1 rounded-md hover:bg-gray-100"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                            <button onclick="deleteProduct('${p.id}')" class="text-red-600 hover:text-red-800 p-1 rounded-md hover:bg-gray-100"><i data-lucide="trash" class="w-4 h-4"></i></button>
+                                        </td>
+                                    </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${state.products.length === 0 ? '<p class="text-center py-4 text-gray-500 italic">Belum ada produk di database.</p>' : ''}
+                </div>
+            `;
+            
+            // Riwayat Pesanan (Database Pribadi)
+            const orderListHTML = `
+                <div class="mt-12">
+                    <h3 class="text-2xl font-bold text-amber-600 mb-4 flex items-center"><i data-lucide="receipt" class="w-6 h-6 mr-2"></i> Riwayat Pemesanan (Pribadi)</h3>
+                    <p class="text-sm text-gray-600 mb-4">Catatan pesanan ini disimpan secara pribadi di akun CMS Anda.</p>
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-xl border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-amber-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Waktu</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Produk</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Harga Dicatat</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                ${state.orders.map(o => `
+                                    <tr class="hover:bg-amber-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${o.timestamp ? new Date(o.timestamp.toDate()).toLocaleString() : 'N/A'}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${o.productName}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm ${o.price > 0 ? 'text-red-600' : 'text-gray-500 italic'}">${getPriceDisplay(o.price)}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-600 text-white">
+                                                ${o.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${state.orders.length === 0 ? '<p class="text-center py-4 text-gray-500 italic">Belum ada riwayat pesanan.</p>' : ''}
+                </div>
+            `;
+
+            appContainer.innerHTML = `
+                <h2 class="text-3xl font-extrabold text-red-700 mb-8 border-b-4 border-amber-500 pb-2">CMS Admin Dashboard</h2>
+                <div class="text-sm text-gray-500 mb-4">Anda login sebagai Admin (User ID: <span class="text-gray-900 font-mono">${currentUid}</span>)</div>
+                
+                ${productFormHTML}
+                ${productListHTML}
+                ${orderListHTML}
+            `;
+            lucide.createIcons();
+        }
+
+        // --- GLOBAL APP LOGIC ---
+
+        function renderApp() {
+            renderHeader();
+            renderFooterNav();
+            
+            if (state.loading && !isAuthReady) {
+                appContainer.innerHTML = '<div class="flex justify-center items-center h-64"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div><span class="text-red-700 ml-3">Memuat Aplikasi...</span></div>';
+                return;
+            }
+
+            // Tampilkan error umum jika autentikasi gagal
+            if (state.error && state.error.includes("Gagal autentikasi")) {
+                 appContainer.innerHTML = `<div class="text-center py-20">
+                     <i data-lucide="alert-triangle" class="w-12 h-12 text-red-500 mx-auto mb-4"></i>
+                     <h3 class="text-xl font-bold text-red-700">Gagal Memuat Aplikasi</h3>
+                     <p class="text-gray-600">${state.error}</p>
+                     <p class="text-sm text-gray-500 mt-4">Silakan coba muat ulang halaman.</p>
+                 </div>`;
+                 lucide.createIcons();
+                 return;
+            }
+
+
+            switch (state.currentView) {
+                case 'home':
+                    renderHome();
+                    break;
+                case 'about':
+                    renderAbout();
+                    break;
+                case 'cms':
+                    renderCMS();
+                    break;
+                default:
+                    renderHome();
+            }
+        }
+
+        // Expose navigate function to global scope
+        window.navigate = (view) => {
+            state.currentView = view;
+            renderApp();
+            // Scroll to top when changing view
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        
+        // Expose CMS functions to global scope
+        window.handleCmsSubmit = (form) => {
+            const formData = new FormData(form);
+            const priceValue = parseInt(formData.get('price'), 10);
+            
+            // Validasi harga
+            if (priceValue < 0) {
+                 showMessage('Harga tidak boleh kurang dari 0.', 'error');
+                 return;
+            }
+
+            const productData = {
+                id: formData.get('id'),
+                name: formData.get('name'),
+                category: formData.get('category'), 
+                price: priceValue,
+                description: formData.get('description'),
+            };
+
+            if (state.cmsMode === 'edit' && productData.id) {
+                handleAddOrUpdateProduct(productData, true);
+            } else {
+                handleAddOrUpdateProduct(productData, false);
+            }
+        };
+
+        window.editProduct = (id) => {
+            const product = state.products.find(p => p.id === id);
+            if (product) {
+                state.selectedProduct = product;
+                state.cmsMode = 'edit';
+                renderApp();
+            }
+        };
+
+        window.cancelEdit = () => {
+            state.selectedProduct = null;
+            state.cmsMode = 'add';
+            renderApp();
+        };
+
+        window.deleteProduct = handleDeleteProduct;
+        window.formatRupiah = formatRupiah; 
+        window.getPriceDisplay = getPriceDisplay; 
+
+        // Initial render after setup
+        renderApp();
+    </script>
+
+</body>
+</html>
+
+
