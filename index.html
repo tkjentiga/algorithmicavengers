@@ -4,622 +4,489 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Algorithmic Avengers - Perangkat Komputer & Jaringan</title>
-    <!-- Load Tailwind CSS -->
+    <!-- Memuat Tailwind CSS untuk styling responsif -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Set default font to Inter -->
+    <!-- Memuat Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        /* Mengatur font utama */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7f7f7;
-            padding-bottom: 64px; /* Space for the fixed bottom navigation */
+            background-color: #fefce8; /* light yellow background */
+            /* Padding bawah untuk memberi ruang pada menu bar tetap */
+            padding-bottom: 6rem;
         }
-        .content-section {
+
+        /* Styling spesifik untuk kartu dan efek hover */
+        .card {
+            transition: all 0.3s ease-in-out;
+            border-radius: 12px;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(127, 29, 29, 0.1); /* Red-based shadow */
+        }
+
+        /* Styling untuk logo placeholder */
+        .logo-placeholder {
+            width: 40px;
+            height: 40px;
+            background-color: #b91c1c; /* Dark Red */
+            color: #fcd34d; /* Gold */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        /* Kelas untuk sembunyikan/tampilkan antar-halaman */
+        .page-content {
             display: none;
-            min-height: calc(100vh - 120px); /* Adjust height for header and footer */
         }
-        /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2563eb;
-            border-radius: 4px;
+        .active-page {
+            display: block;
         }
     </style>
 </head>
-<body>
+<body class="antialiased">
 
-<!-- HEADER (Static Top) -->
-<header class="fixed top-0 left-0 w-full bg-white shadow-lg z-20">
-    <div class="max-w-4xl mx-auto flex items-center p-3">
-        <div class="text-indigo-600 mr-2">
-            <!-- Icon/Logo Placeholder -->
-            <i data-lucide="shield-check" class="w-8 h-8"></i>
+    <!-- Header (Static Top) -->
+    <header class="bg-red-800 text-yellow-400 p-4 shadow-lg fixed w-full top-0 z-40">
+        <div class="flex items-center space-x-3 max-w-4xl mx-auto">
+            <div class="logo-placeholder">A A</div>
+            <h1 class="text-xl font-bold">Algorithmic Avengers</h1>
         </div>
-        <h1 class="text-xl font-bold text-gray-800">Algorithmic Avengers</h1>
-    </div>
-</header>
+    </header>
 
-<!-- MAIN CONTENT AREA -->
-<main class="max-w-4xl mx-auto p-4 mt-16 mb-4">
+    <!-- Konten Utama - Menampung halaman Home dan CMS -->
+    <main class="mt-16 max-w-4xl mx-auto p-4 md:p-6">
 
-    <!-- 1. HOME SECTION -->
-    <section id="home-view" class="content-section p-4 bg-white rounded-xl shadow-lg">
-        <h2 class="text-3xl font-extrabold text-indigo-700 mb-4">Selamat Datang!</h2>
-        <p class="text-gray-700 mb-6">Kami menyediakan solusi terdepan untuk kebutuhan perangkat keras komputer dan layanan *top-up* jaringan Anda. Kecepatan, keandalan, dan pelayanan terbaik adalah prioritas kami.</p>
+        <!-- Halaman HOME -->
+        <div id="home-page" class="page-content active-page">
+            
+            <!-- Bagian Produk dan Layanan -->
+            <section id="produk" class="mb-10">
+                <h2 class="text-3xl font-extrabold text-red-800 mb-6 border-b-2 border-yellow-500 pb-2">
+                    <i class="fas fa-boxes mr-2 text-yellow-600"></i> Produk & Layanan Digital
+                </h2>
+                <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Produk akan dirender di sini oleh JavaScript -->
+                </div>
+            </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-indigo-50 p-4 rounded-lg flex items-center shadow-md">
-                <i data-lucide="cpu" class="w-6 h-6 text-indigo-500 mr-3"></i>
-                <span class="font-semibold text-indigo-800">Perangkat Keras Terbaru</span>
-            </div>
-            <div class="bg-indigo-50 p-4 rounded-lg flex items-center shadow-md">
-                <i data-lucide="cloud-lightning" class="w-6 h-6 text-indigo-500 mr-3"></i>
-                <span class="font-semibold text-indigo-800">Layanan Jaringan Cepat</span>
-            </div>
-            <div class="bg-indigo-50 p-4 rounded-lg flex items-center shadow-md">
-                <i data-lucide="shield-half" class="w-6 h-6 text-indigo-500 mr-3"></i>
-                <span class="font-semibold text-indigo-800">Garansi & Kepercayaan</span>
-            </div>
-        </div>
-        <p class="mt-6 text-center text-sm text-gray-500">Jelajahi produk kami melalui menu di bawah!</p>
-    </section>
-
-    <!-- 2. PRODUCTS SECTION -->
-    <section id="products-view" class="content-section">
-        <h2 class="text-3xl font-extrabold text-indigo-700 mb-6 border-b-2 pb-2">Daftar Produk & Layanan</h2>
-        <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <!-- Product cards will be dynamically inserted here -->
-            <p class="text-center text-gray-500 col-span-full" id="loading-products">Memuat produk...</p>
-        </div>
-    </section>
-
-    <!-- 3. TEAM SECTION -->
-    <section id="team-view" class="content-section p-4 bg-white rounded-xl shadow-lg">
-        <h2 class="text-3xl font-extrabold text-indigo-700 mb-6 border-b-2 pb-2">Tim Pengurus Algorithmic Avengers</h2>
-        <div id="team-members-list" class="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <!-- Team members will be dynamically inserted here -->
-        </div>
-    </section>
-
-    <!-- 4. ADMIN (CMS) SECTION -->
-    <section id="admin-view" class="content-section p-4 bg-white rounded-xl shadow-lg">
-        <h2 class="text-3xl font-extrabold text-indigo-700 mb-6 border-b-2 pb-2">Admin Panel (CMS)</h2>
-
-        <!-- Login Form -->
-        <div id="admin-login" class="max-w-sm mx-auto p-6 bg-gray-50 rounded-lg shadow-inner">
-            <p class="text-center text-gray-600 mb-4 font-medium">Masukkan PIN Admin (Contoh: 1234)</p>
-            <input type="password" id="admin-pin" placeholder="PIN" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" required>
-            <button id="login-btn" class="w-full bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-150">Masuk</button>
-            <p id="login-error" class="text-red-500 text-center mt-2 hidden">PIN salah!</p>
+            <!-- Bagian Anggota Pengurus -->
+            <section id="anggota" class="mb-20">
+                <h2 class="text-3xl font-extrabold text-red-800 mb-6 border-b-2 border-yellow-500 pb-2">
+                    <i class="fas fa-users-gear mr-2 text-yellow-600"></i> Anggota Pengurus
+                </h2>
+                <div id="member-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Anggota akan dirender di sini oleh JavaScript -->
+                </div>
+            </section>
         </div>
 
-        <!-- Admin Dashboard (Hidden initially) -->
-        <div id="admin-dashboard" class="hidden">
-            <div class="mb-6 flex justify-between items-center">
-                <p class="text-xl font-semibold text-gray-800">Selamat datang, Admin!</p>
-                <button id="logout-btn" class="text-sm text-red-500 hover:text-red-700 font-medium">Keluar</button>
+        <!-- Halaman CMS (Content Management System) -->
+        <div id="cms-page" class="page-content">
+            <h2 class="text-3xl font-extrabold text-red-800 mb-6 border-b-2 border-yellow-500 pb-2">
+                <i class="fas fa-cogs mr-2 text-red-500"></i> CMS Panel
+            </h2>
+
+            <!-- CMS Login -->
+            <div id="cms-login" class="bg-white p-6 rounded-lg shadow-md mb-8">
+                <h3 class="text-xl font-semibold mb-4">Login CMS</h3>
+                <input type="password" id="cms-password" placeholder="Masukkan Sandi" class="w-full p-3 border border-gray-300 rounded-md mb-4 focus:ring-red-500 focus:border-red-500">
+                <button onclick="loginCMS()" class="w-full py-3 bg-red-600 text-yellow-100 font-bold rounded-md hover:bg-red-700 transition duration-200">
+                    Login
+                </button>
             </div>
 
-            <!-- Add/Edit Product Form -->
-            <div class="p-4 border border-indigo-200 rounded-lg bg-indigo-50 mb-6">
-                <h3 class="text-xl font-bold text-indigo-700 mb-4" id="form-title">Tambah Produk Baru</h3>
-                <form id="product-form" class="space-y-3">
-                    <input type="hidden" id="product-id">
-                    <input type="text" id="product-name" placeholder="Nama Produk" class="w-full p-2 border rounded-lg" required>
-                    <textarea id="product-description" placeholder="Deskripsi Produk" class="w-full p-2 border rounded-lg h-20" required></textarea>
-                    <input type="number" id="product-price" placeholder="Harga (IDR)" class="w-full p-2 border rounded-lg" required min="0">
-                    <input type="number" id="product-stock" placeholder="Stok" class="w-full p-2 border rounded-lg" required min="0">
-                    <input type="text" id="product-image" placeholder="URL Gambar (Placeholder)" value="https://placehold.co/300x200/4f46e5/ffffff?text=Produk" class="w-full p-2 border rounded-lg" required>
-                    <button type="submit" class="w-full bg-green-600 text-white p-2 rounded-lg font-semibold hover:bg-green-700 transition duration-150" id="form-submit-btn">Simpan Produk</button>
-                </form>
-            </div>
-
-            <!-- Product Management List -->
-            <h3 class="text-2xl font-bold text-gray-800 mb-3 mt-8">Manajemen Produk Aktif</h3>
-            <div id="admin-product-list" class="space-y-2">
-                <!-- Admin product list will be inserted here -->
-            </div>
-            <p id="admin-loading" class="text-center text-gray-500 mt-4">Memuat data...</p>
-        </div>
-    </section>
-
-</main>
-
-<!-- FIXED BOTTOM NAVIGATION (Static Menu Bar) -->
-<nav class="fixed bottom-0 left-0 w-full bg-white shadow-xl border-t border-gray-200 z-50">
-    <div class="max-w-4xl mx-auto flex justify-around items-center h-16">
-        <button class="nav-btn flex flex-col items-center text-indigo-600 hover:text-indigo-800 transition" data-view="home-view">
-            <i data-lucide="home" class="w-6 h-6"></i>
-            <span class="text-xs mt-1">Home</span>
-        </button>
-        <button class="nav-btn flex flex-col items-center text-gray-500 hover:text-indigo-800 transition" data-view="products-view">
-            <i data-lucide="layout-grid" class="w-6 h-6"></i>
-            <span class="text-xs mt-1">Produk</span>
-        </button>
-        <button class="nav-btn flex flex-col items-center text-gray-500 hover:text-indigo-800 transition" data-view="team-view">
-            <i data-lucide="users" class="w-6 h-6"></i>
-            <span class="text-xs mt-1">Tim</span>
-        </button>
-        <button class="nav-btn flex flex-col items-center text-gray-500 hover:text-indigo-800 transition" data-view="admin-view">
-            <i data-lucide="settings" class="w-6 h-6"></i>
-            <span class="text-xs mt-1">Admin</span>
-        </button>
-    </div>
-</nav>
-
-<!-- MODAL Placeholder (for confirming delete) -->
-<div id="modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full">
-        <h3 class="text-lg font-bold mb-4 text-red-600" id="modal-title">Konfirmasi</h3>
-        <p class="text-gray-700 mb-6" id="modal-message">Apakah Anda yakin ingin menghapus produk ini?</p>
-        <div class="flex justify-end space-x-3">
-            <button id="modal-cancel" class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300">Batal</button>
-            <button id="modal-confirm" class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700">Hapus</button>
-        </div>
-    </div>
-</div>
-
-<!-- Firebase and App Logic -->
-<script type="module">
-    // Load Firebase Modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // --- GLOBAL VARIABLES (Provided by Canvas Environment) ---
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-    // --- FIREBASE INITIALIZATION ---
-    let app, db, auth, userId;
-    let isAuthReady = false;
-    setLogLevel('debug'); // Enable Firestore logging
-
-    // Product collection path (Public data for all users)
-    const PRODUCTS_COLLECTION_PATH = `artifacts/${appId}/public/data/products`;
-
-    /**
-     * Initializes Firebase and authenticates the user.
-     */
-    async function initFirebase() {
-        try {
-            if (firebaseConfig) {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // Authentication
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        isAuthReady = true;
-                        console.log("Firestore ready. User ID:", userId);
-                        // Start listeners after auth is ready
-                        setupRealtimeListeners();
-                    } else {
-                        // Sign in with custom token or anonymously
-                        if (initialAuthToken) {
-                            await signInWithCustomToken(auth, initialAuthToken);
-                        } else {
-                            await signInAnonymously(auth);
-                            userId = auth.currentUser.uid;
-                            isAuthReady = true;
-                            console.log("Signed in anonymously. User ID:", userId);
-                            setupRealtimeListeners();
-                        }
-                    }
-                });
-            } else {
-                console.error("Firebase config is missing. Cannot initialize Firestore.");
-                // Fallback for demo products if Firestore is unavailable
-                renderProducts(DEMO_PRODUCTS);
-                renderAdminProducts(DEMO_PRODUCTS);
-            }
-        } catch (error) {
-            console.error("Error during Firebase initialization:", error);
-        }
-    }
-
-    // --- DATA HANDLING (Firestore & Local) ---
-
-    // Dummy data for team members
-    const TEAM_MEMBERS = [
-        { name: "A. Wibowo", position: "CEO & Arsitek Jaringan", photo: "https://placehold.co/100x100/1e40af/ffffff?text=CEO" },
-        { name: "B. Susanto", position: "Manajer Produk", photo: "https://placehold.co/100x100/374151/ffffff?text=PM" },
-        { name: "C. Raharja", position: "Spesialis Teknis", photo: "https://placehold.co/100x100/059669/ffffff?text=Tech" },
-        { name: "D. Putri", position: "Pemasaran Digital", photo: "https://placehold.co/100x100/dc2626/ffffff?text=Mkt" },
-    ];
-
-    // Dummy product data for fallback if Firebase fails
-    const DEMO_PRODUCTS = [
-        { id: 'demo1', name: "RAM DDR4 16GB", description: "Modul memori kecepatan tinggi untuk gaming dan rendering.", price: 750000, stock: 15, image: "https://placehold.co/300x200/4f46e5/ffffff?text=RAM" },
-        { id: 'demo2', name: "Top-up Kuota Internet 50GB", description: "Layanan isi ulang kuota jaringan 4G/5G.", price: 100000, stock: 99, image: "https://placehold.co/300x200/4f46e5/ffffff?text=Kuota" },
-    ];
-    let currentProducts = [];
-
-    /**
-     * Sets up the real-time listener for the products collection.
-     */
-    function setupRealtimeListeners() {
-        if (!db || !isAuthReady) return;
-
-        const productsRef = collection(db, PRODUCTS_COLLECTION_PATH);
-        const q = query(productsRef);
-
-        document.getElementById('loading-products').textContent = "Memuat produk...";
-
-        onSnapshot(q, (snapshot) => {
-            currentProducts = [];
-            snapshot.forEach(doc => {
-                currentProducts.push({ id: doc.id, ...doc.data() });
-            });
-            console.log("Products updated:", currentProducts);
-            // Re-render both views
-            renderProducts(currentProducts);
-            renderAdminProducts(currentProducts);
-        }, (error) => {
-            console.error("Error fetching products:", error);
-            document.getElementById('loading-products').textContent = "Gagal memuat produk. Menampilkan data demo.";
-            renderProducts(DEMO_PRODUCTS);
-            renderAdminProducts(DEMO_PRODUCTS);
-        });
-    }
-
-    // --- RENDERING FUNCTIONS ---
-
-    /**
-     * Renders the product list for the public view.
-     */
-    function renderProducts(products) {
-        const listContainer = document.getElementById('product-list');
-        listContainer.innerHTML = '';
-        document.getElementById('loading-products').textContent = products.length === 0 ? "Tidak ada produk tersedia saat ini." : "";
-
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300';
-            const statusClass = product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-            const buttonDisabled = product.stock === 0 ? 'opacity-50 cursor-not-allowed' : '';
-            const buttonText = product.stock > 0 ? 'Pesan via WhatsApp' : 'Stok Habis';
-
-            card.innerHTML = `
-                <img src="${product.image}" onerror="this.onerror=null;this.src='https://placehold.co/300x200/4f46e5/ffffff?text=Produk'" alt="${product.name}" class="w-full h-48 object-cover">
-                <div class="p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="text-xl font-bold text-gray-800">${product.name}</h3>
-                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${product.stock} Stok</span>
+            <!-- CMS Dashboard (Tergantung login) -->
+            <div id="cms-dashboard" class="hidden">
+                <div class="flex flex-col md:flex-row gap-6 mb-8">
+                    <!-- Tab Produk -->
+                    <div class="w-full md:w-1/2 bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-4 text-red-600">Manajemen Produk</h3>
+                        <form id="add-product-form" class="space-y-4">
+                            <input type="text" id="prod-name" placeholder="Nama Produk" required class="w-full p-2 border rounded-md">
+                            <input type="number" id="prod-price" placeholder="Harga (IDR)" required class="w-full p-2 border rounded-md">
+                            <textarea id="prod-desc" placeholder="Deskripsi" required class="w-full p-2 border rounded-md"></textarea>
+                            <button type="submit" class="w-full py-2 bg-red-500 text-yellow-100 rounded-md hover:bg-red-600">Tambah Produk</button>
+                        </form>
+                        <hr class="my-4">
+                        <h4 class="font-semibold mb-2">Daftar Produk Aktif</h4>
+                        <ul id="cms-product-list" class="list-disc pl-5 space-y-1 text-sm"></ul>
                     </div>
-                    <p class="text-sm text-gray-600 h-12 overflow-hidden mb-3">${product.description}</p>
-                    <p class="text-2xl font-extrabold text-indigo-600 mb-4">Rp ${new Intl.NumberFormat('id-ID').format(product.price)}</p>
-                    <button data-product-id="${product.id}" class="whatsapp-order-btn w-full flex items-center justify-center p-3 rounded-lg font-bold text-white bg-green-500 hover:bg-green-600 transition duration-150 ${buttonDisabled}" ${product.stock === 0 ? 'disabled' : ''}>
-                        <i data-lucide="message-square" class="w-5 h-5 mr-2"></i> ${buttonText}
-                    </button>
+                    
+                    <!-- Tab Anggota -->
+                    <div class="w-full md:w-1/2 bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-semibold mb-4 text-yellow-700">Manajemen Anggota</h3>
+                        <form id="add-member-form" class="space-y-4">
+                            <input type="text" id="mem-name" placeholder="Nama Anggota" required class="w-full p-2 border rounded-md">
+                            <input type="text" id="mem-pos" placeholder="Posisi" required class="w-full p-2 border rounded-md">
+                            <input type="text" id="mem-photo" placeholder="URL Foto (Placeholder)" required class="w-full p-2 border rounded-md">
+                            <button type="submit" class="w-full py-2 bg-yellow-500 text-red-800 rounded-md hover:bg-yellow-600 font-bold">Tambah Anggota</button>
+                        </form>
+                        <hr class="my-4">
+                        <h4 class="font-semibold mb-2">Daftar Anggota</h4>
+                        <ul id="cms-member-list" class="list-disc pl-5 space-y-1 text-sm"></ul>
+                    </div>
                 </div>
-            `;
-            listContainer.appendChild(card);
-        });
-        lucide.createIcons(); // Re-render icons after adding content
-        addWhatsappListeners();
-    }
 
-    /**
-     * Renders the product list for the admin view.
-     */
-    function renderAdminProducts(products) {
-        const listContainer = document.getElementById('admin-product-list');
-        listContainer.innerHTML = '';
-        document.getElementById('admin-loading').textContent = products.length === 0 ? "Tidak ada produk dalam database." : "";
-
-        products.forEach(product => {
-            const item = document.createElement('div');
-            item.className = 'flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white shadow-sm';
-            item.innerHTML = `
-                <div class="flex-1 min-w-0 mr-4">
-                    <p class="text-lg font-semibold text-gray-800">${product.name}</p>
-                    <p class="text-sm text-gray-600">Rp ${new Intl.NumberFormat('id-ID').format(product.price)} | Stok: ${product.stock}</p>
+                <!-- Daftar Pemesanan (Database Spreadsheet Simulasi) -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4 text-red-800">Rekap Pemesanan (Simulasi DB)</h3>
+                    <div id="order-message" class="mb-4 text-sm text-gray-500">
+                        *Data ini disimpan di browser lokal (Simulasi Spreadsheet).
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-3 py-2">Waktu</th>
+                                    <th class="px-3 py-2">Produk</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-table-body" class="bg-white divide-y divide-gray-200 text-sm">
+                                <!-- Pesanan akan dirender di sini -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="flex space-x-2">
-                    <button data-id="${product.id}" class="edit-btn p-2 rounded-full text-blue-500 hover:bg-blue-100 transition" title="Edit">
-                        <i data-lucide="square-pen" class="w-5 h-5"></i>
-                    </button>
-                    <button data-id="${product.id}" class="delete-btn p-2 rounded-full text-red-500 hover:bg-red-100 transition" title="Hapus">
-                        <i data-lucide="trash-2" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            `;
-            listContainer.appendChild(item);
-        });
-        lucide.createIcons();
-        addAdminEventListeners();
-    }
+            </div>
+        </div>
 
-    /**
-     * Renders the team members.
-     */
-    function renderTeamMembers() {
-        const teamContainer = document.getElementById('team-members-list');
-        teamContainer.innerHTML = '';
+    </main>
 
-        TEAM_MEMBERS.forEach(member => {
-            const card = document.createElement('div');
-            card.className = 'bg-gray-50 p-4 rounded-lg text-center shadow-md border border-gray-100';
-            card.innerHTML = `
-                <img src="${member.photo}" alt="${member.name}" class="w-24 h-24 rounded-full mx-auto object-cover mb-3 border-4 border-indigo-200">
-                <h4 class="font-bold text-gray-800">${member.name}</h4>
-                <p class="text-sm text-indigo-600">${member.position}</p>
-            `;
-            teamContainer.appendChild(card);
-        });
-    }
+    <!-- Modal Konfirmasi (Menggantikan alert/confirm) -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4" onclick="closeModal()">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm" onclick="event.stopPropagation()">
+            <h3 id="modal-title" class="text-lg font-bold mb-2 text-red-600">Pesan Terkirim!</h3>
+            <p id="modal-body" class="mb-4 text-gray-700">Pesanan telah dicatat dan Anda akan diarahkan ke WhatsApp.</p>
+            <button onclick="closeModal()" class="w-full py-2 bg-red-500 text-yellow-100 font-semibold rounded-lg hover:bg-red-600">Tutup</button>
+        </div>
+    </div>
 
-    // --- APP LOGIC & EVENT LISTENERS ---
+    <!-- Menu Bar Bawah (Static/Fixed) -->
+    <nav class="bottom-navbar fixed bottom-0 left-0 w-full bg-red-800 shadow-xl z-50">
+        <div class="flex justify-around items-center h-16 max-w-4xl mx-auto">
+            <button class="nav-btn text-yellow-400 flex flex-col items-center p-2 hover:text-yellow-200 transition" data-page="home">
+                <i class="fas fa-home text-xl"></i>
+                <span class="text-xs mt-1">Beranda</span>
+            </button>
+            <button class="nav-btn text-yellow-400 flex flex-col items-center p-2 hover:text-yellow-200 transition" data-page="produk">
+                <i class="fas fa-boxes text-xl"></i>
+                <span class="text-xs mt-1">Produk</span>
+            </button>
+            <button class="nav-btn text-yellow-400 flex flex-col items-center p-2 hover:text-yellow-200 transition" data-page="anggota">
+                <i class="fas fa-users-gear text-xl"></i>
+                <span class="text-xs mt-1">Anggota</span>
+            </button>
+            <button class="nav-btn text-yellow-400 flex flex-col items-center p-2 hover:text-yellow-200 transition" data-page="cms">
+                <i class="fas fa-screwdriver-wrench text-xl"></i>
+                <span class="text-xs mt-1">CMS</span>
+            </button>
+        </div>
+    </nav>
 
-    // Initial view setup
-    function switchView(viewId) {
-        document.querySelectorAll('.content-section').forEach(section => {
-            section.style.display = 'none';
-        });
-        document.getElementById(viewId).style.display = 'block';
+    <script>
+        // =================================================================
+        // SIMULASI DATABASE SPREADSHEET & API GOOGLE APPS SCRIPT
+        // Data disimpan di variabel JS lokal untuk demonstrasi
+        // =================================================================
 
-        // Update nav button states
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            if (btn.getAttribute('data-view') === viewId) {
-                btn.classList.remove('text-gray-500');
-                btn.classList.add('text-indigo-600');
-            } else {
-                btn.classList.remove('text-indigo-600');
-                btn.classList.add('text-gray-500');
+        const MOCK_API_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+        const WHATSAPP_NUMBER = '6281234567890'; // Ganti dengan nomor WhatsApp Admin Anda
+        const CMS_PASSWORD = 'admin'; // Sandi sederhana untuk CMS
+
+        // DAFTAR PRODUK BARU DENGAN MINIMUM HARGA YANG DIPERBARUI
+        let PRODUCTS = [
+            { id: 1, name: "Pulsa", price: 5000, desc: "Isi ulang pulsa reguler untuk semua operator seluler. Minimum pembelian Rp 5.000." },
+            { id: 2, name: "Paket Internet", price: 10000, desc: "Berbagai pilihan paket data internet cepat dengan harga kompetitif. Minimum pembelian Rp 10.000." },
+            { id: 3, name: "Top Up Dompet Digital", price: 20000, desc: "Top up saldo E-Wallet seperti Gopay, OVO, Dana, LinkAja, dll. Minimum Top Up Rp 20.000." },
+            { id: 4, name: "Top Up All Game", price: 10000, desc: "Top up diamond, UC, Coin, atau mata uang game lainnya untuk semua game populer. Minimum Top Up Rp 10.000." },
+            { id: 5, name: "Token Listrik", price: 20000, desc: "Pembelian token listrik PLN Prabayar mulai dari nominal Rp 20.000." },
+            { id: 6, name: "Tagihan Listrik", price: 0, desc: "Pembayaran tagihan listrik PLN Pascabayar bulanan. Harga akan dihitung sesuai penggunaan (cek tagihan)." },
+            { id: 7, name: "Tagihan Air", price: 0, desc: "Pembayaran tagihan air PDAM/PAM di berbagai wilayah. Harga akan dihitung sesuai tagihan bulanan (cek tagihan)." }
+        ];
+
+        let MEMBERS = [
+            { name: "Muhammad Farel", position: "Ketua", photoUrl: "https://placehold.co/150x150/1d4ed8/ffffff?text=MF" },
+            { name: "Ardillah Oktaviani", position: "Anggota", photoUrl: "https://placehold.co/150x150/065f46/ffffff?text=AO" },
+            { name: "Susilowati", position: "Anggota", photoUrl: "https://placehold.co/150x150/9d174d/ffffff?text=S" },
+            { name: "Jumanah", position: "Anggota", photoUrl: "https://placehold.co/150x150/334155/ffffff?text=J" },
+            { name: "Ade Baehaqi", position: "Anggota", photoUrl: "https://placehold.co/150x150/4f46e5/ffffff?text=AB" }
+        ];
+
+        let ORDERS = [];
+
+        // Fungsi Simulasi Perekaman ke Spreadsheet (Ganti dengan Fetch API sesungguhnya)
+        async function recordOrderToDatabase(productName) {
+            console.log(`Simulasi: Mencatat pesanan produk "${productName}" ke database...`);
+            
+            // Format data yang akan dikirim ke Apps Script
+            const orderData = {
+                action: 'recordOrder', // Digunakan di Apps Script untuk menentukan fungsi
+                product: productName,
+                timestamp: new Date().toISOString(),
+                // Anda bisa menambahkan data pengguna (misal: ID Pengguna) di sini
+            };
+
+            // *** Ganti block ini dengan fetch API yang sesungguhnya ke Web App Apps Script Anda ***
+            // try {
+            //     const response = await fetch(MOCK_API_URL, {
+            //         method: 'POST',
+            //         headers: { 'Content-Type': 'application/json' },
+            //         body: JSON.stringify(orderData)
+            //     });
+            //     if (!response.ok) {
+            //         throw new Error('Gagal terhubung ke Spreadsheet API');
+            //     }
+            //     const result = await response.json();
+            //     console.log('API Response:', result);
+            // } catch (error) {
+            //     console.error('Error saat mencatat pesanan:', error);
+            //     // Lanjutkan ke WhatsApp meskipun pencatatan gagal
+            // }
+            // ***********************************************************************************
+
+            // Simulasi Penyimpanan Lokal
+            ORDERS.unshift({
+                product: productName,
+                timestamp: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })
+            });
+            // Menyimpan ke Local Storage agar CMS bisa melihatnya setelah refresh (opsional, tapi baik untuk simulasi)
+            localStorage.setItem('algorithmic_avengers_orders', JSON.stringify(ORDERS));
+            localStorage.setItem('algorithmic_avengers_products', JSON.stringify(PRODUCTS));
+            localStorage.setItem('algorithmic_avengers_members', JSON.stringify(MEMBERS));
+
+
+            console.log('Simulasi Berhasil: Pesanan tercatat.');
+            renderOrders(); // Update tampilan CMS jika sedang dibuka
+        }
+
+        // =================================================================
+        // FUNGSI RENDER (Menampilkan data ke HTML)
+        // =================================================================
+
+        function renderProducts() {
+            const listElement = document.getElementById('product-list');
+            listElement.innerHTML = ''; // Kosongkan daftar
+            
+            PRODUCTS.forEach(product => {
+                let priceText;
+                
+                // Cek jika harga 0 (untuk layanan cek tagihan)
+                if (product.price === 0) {
+                    priceText = "Harga Cek Tagihan";
+                } else {
+                    priceText = `Mulai dari Rp ${product.price.toLocaleString('id-ID')}`;
+                }
+
+                const card = `
+                    <div class="product-card card bg-white p-4 shadow-lg flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-red-700 mb-2">${product.name}</h3>
+                            <p class="text-lg font-extrabold text-red-900 mb-3">${priceText}</p>
+                            <p class="text-gray-600 text-sm mb-4">${product.desc}</p>
+                        </div>
+                        <button onclick="handleOrder(${product.id})" 
+                                class="w-full py-2 bg-yellow-500 text-red-800 font-bold rounded-lg hover:bg-yellow-600 transition duration-200 shadow-md">
+                            <i class="fab fa-whatsapp mr-2"></i> Pesan Sekarang
+                        </button>
+                    </div>
+                `;
+                listElement.innerHTML += card;
+            });
+        }
+
+        function renderMembers() {
+            const listElement = document.getElementById('member-list');
+            listElement.innerHTML = ''; // Kosongkan daftar
+
+            MEMBERS.forEach(member => {
+                const card = `
+                    <div class="member-card card bg-white p-4 shadow-lg text-center">
+                        <img src="${member.photoUrl}" alt="${member.name}" class="w-24 h-24 object-cover rounded-full mx-auto mb-3 border-4 border-yellow-500">
+                        <h3 class="text-lg font-bold text-gray-800">${member.name}</h3>
+                        <p class="text-sm text-red-600 font-semibold">${member.position}</p>
+                    </div>
+                `;
+                listElement.innerHTML += card;
+            });
+        }
+
+        function renderOrders() {
+            const tableBody = document.getElementById('order-table-body');
+            tableBody.innerHTML = '';
+
+            ORDERS.forEach(order => {
+                const row = `
+                    <tr>
+                        <td class="px-3 py-2 whitespace-nowrap">${order.timestamp}</td>
+                        <td class="px-3 py-2">${order.product}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // =================================================================
+        // FUNGSI PEMESANAN WHATSAPP OTOMATIS
+        // =================================================================
+
+        async function handleOrder(productId) {
+            const product = PRODUCTS.find(p => p.id === productId);
+            
+            if (!product) {
+                console.error("Produk tidak ditemukan.");
+                return;
             }
-        });
-    }
 
-    /**
-     * Handles the WhatsApp order generation.
-     */
-    function handleWhatsappOrder(event) {
-        const productId = event.currentTarget.getAttribute('data-product-id');
-        const product = currentProducts.find(p => p.id === productId);
+            // 1. Catat pesanan ke database (Simulasi Apps Script/Spreadsheet)
+            await recordOrderToDatabase(product.name);
 
-        if (product) {
-            // Target WhatsApp number (Example: 628123456789 - format: country code + number)
-            const whatsappNumber = "628123456789";
-
-            const message = `Halo Algorithmic Avengers,\n\nSaya ingin memesan produk berikut:\n\n*Nama Produk:* ${product.name}\n*Harga:* Rp ${new Intl.NumberFormat('id-ID').format(product.price)}\n*Kode Produk:* ${productId}\n\nMohon konfirmasi ketersediaan dan total biaya. Terima kasih!`;
-
+            // 2. Buat URL WhatsApp
+            const message = `Halo Algorithmic Avengers, saya tertarik dengan layanan "${product.name}". Mohon informasi dan panduan pemesanan lebih lanjut.`;
             const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodedMessage}`;
 
-            window.open(whatsappUrl, '_blank');
-        } else {
-            console.error("Product not found for order:", productId);
-        }
-    }
-
-    function addWhatsappListeners() {
-        document.querySelectorAll('.whatsapp-order-btn').forEach(button => {
-            // Remove previous listeners to prevent duplicates
-            button.removeEventListener('click', handleWhatsappOrder);
-            button.addEventListener('click', handleWhatsappOrder);
-        });
-    }
-
-    // --- CMS/ADMIN LOGIC ---
-
-    const ADMIN_PIN = "1234"; // Hardcoded PIN for client-side CMS access
-
-    function checkAdminAccess() {
-        if (sessionStorage.getItem('admin_logged_in') === 'true') {
-            document.getElementById('admin-login').classList.add('hidden');
-            document.getElementById('admin-dashboard').classList.remove('hidden');
-            return true;
-        } else {
-            document.getElementById('admin-dashboard').classList.add('hidden');
-            document.getElementById('admin-login').classList.remove('hidden');
-            return false;
-        }
-    }
-
-    document.getElementById('login-btn').addEventListener('click', () => {
-        const pinInput = document.getElementById('admin-pin').value;
-        const errorMsg = document.getElementById('login-error');
-
-        if (pinInput === ADMIN_PIN) {
-            sessionStorage.setItem('admin_logged_in', 'true');
-            errorMsg.classList.add('hidden');
-            checkAdminAccess();
-            document.getElementById('admin-pin').value = ''; // Clear input
-        } else {
-            errorMsg.classList.remove('hidden');
-        }
-    });
-
-    document.getElementById('logout-btn').addEventListener('click', () => {
-        sessionStorage.removeItem('admin_logged_in');
-        checkAdminAccess();
-        // Reset form when logging out
-        resetProductForm();
-    });
-
-    /**
-     * Resets the Add/Edit product form.
-     */
-    function resetProductForm() {
-        document.getElementById('product-form').reset();
-        document.getElementById('product-id').value = '';
-        document.getElementById('form-title').textContent = 'Tambah Produk Baru';
-        document.getElementById('form-submit-btn').textContent = 'Simpan Produk';
-        document.getElementById('form-submit-btn').classList.remove('bg-blue-600', 'hover:bg-blue-700');
-        document.getElementById('form-submit-btn').classList.add('bg-green-600', 'hover:bg-green-700');
-    }
-
-    /**
-     * Handles product form submission (Add or Edit).
-     */
-    document.getElementById('product-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!isAuthReady || !db) {
-            console.error("Firestore is not ready.");
-            return;
+            // 3. Tampilkan Modal Konfirmasi
+            openModal('Pesanan Dicatat!', 'Permintaan layanan telah dicatat ke sistem kami (Simulasi Spreadsheet) dan Anda akan diarahkan ke WhatsApp untuk tindak lanjut.', 'text-red-700');
+            
+            // 4. Redirect ke WhatsApp setelah jeda (agar modal sempat terlihat)
+            setTimeout(() => {
+                window.location.href = whatsappUrl;
+            }, 1500);
         }
 
-        const productId = document.getElementById('product-id').value;
-        const productData = {
-            name: document.getElementById('product-name').value,
-            description: document.getElementById('product-description').value,
-            price: parseInt(document.getElementById('product-price').value),
-            stock: parseInt(document.getElementById('product-stock').value),
-            image: document.getElementById('product-image').value,
-            updatedAt: serverTimestamp()
-        };
-
-        try {
-            if (productId) {
-                // UPDATE operation
-                await updateDoc(doc(db, PRODUCTS_COLLECTION_PATH, productId), productData);
-                console.log("Product updated successfully:", productId);
-            } else {
-                // ADD operation
-                productData.createdAt = serverTimestamp();
-                await addDoc(collection(db, PRODUCTS_COLLECTION_PATH), productData);
-                console.log("Product added successfully.");
-            }
-            resetProductForm();
-            // The onSnapshot listener handles the re-rendering automatically
-        } catch (error) {
-            console.error("Error saving product:", error);
-            // In a real app, display error to the admin user
-        }
-    });
-
-    /**
-     * Adds event listeners for admin actions (Edit and Delete).
-     */
-    function addAdminEventListeners() {
-        // Edit Button Listener
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = e.currentTarget.getAttribute('data-id');
-                const product = currentProducts.find(p => p.id === id);
-
-                if (product) {
-                    document.getElementById('product-id').value = product.id;
-                    document.getElementById('product-name').value = product.name;
-                    document.getElementById('product-description').value = product.description;
-                    document.getElementById('product-price').value = product.price;
-                    document.getElementById('product-stock').value = product.stock;
-                    document.getElementById('product-image').value = product.image;
-
-                    document.getElementById('form-title').textContent = `Edit Produk: ${product.name}`;
-                    document.getElementById('form-submit-btn').textContent = 'Perbarui Produk';
-                    document.getElementById('form-submit-btn').classList.remove('bg-green-600', 'hover:bg-green-700');
-                    document.getElementById('form-submit-btn').classList.add('bg-blue-600', 'hover:bg-blue-700');
-                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to form
-                }
-            });
-        });
-
-        // Delete Button Listener
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = e.currentTarget.getAttribute('data-id');
-                showModal('Hapus Produk', `Anda yakin ingin menghapus produk dengan ID: ${id}?`, async () => {
-                    // Confirmed delete action
-                    await deleteProduct(id);
-                });
-            });
-        });
-    }
-
-    /**
-     * Deletes a product from Firestore.
-     */
-    async function deleteProduct(id) {
-        if (!isAuthReady || !db) {
-            console.error("Firestore is not ready.");
-            return;
-        }
-        try {
-            await deleteDoc(doc(db, PRODUCTS_COLLECTION_PATH, id));
-            console.log("Product deleted successfully:", id);
-            // onSnapshot handles re-render
-        } catch (error) {
-            console.error("Error deleting product:", error);
-        }
-    }
-
-
-    // --- MODAL HANDLING ---
-
-    const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalMessage = document.getElementById('modal-message');
-    const modalConfirm = document.getElementById('modal-confirm');
-    const modalCancel = document.getElementById('modal-cancel');
-
-    /**
-     * Shows a custom modal (replaces alert/confirm).
-     * @param {string} title - The title of the modal.
-     * @param {string} message - The message content.
-     * @param {function} onConfirm - The callback function when confirming.
-     */
-    function showModal(title, message, onConfirm) {
-        modalTitle.textContent = title;
-        modalMessage.textContent = message;
-        modal.classList.remove('hidden');
-
-        // Clear previous listeners
-        modalConfirm.replaceWith(modalConfirm.cloneNode(true));
-        modalCancel.replaceWith(modalCancel.cloneNode(true));
-        const newModalConfirm = document.getElementById('modal-confirm');
-        const newModalCancel = document.getElementById('modal-cancel');
-
-        // Set new listeners
-        newModalConfirm.addEventListener('click', () => {
-            onConfirm();
-            modal.classList.add('hidden');
-        }, { once: true }); // Use once:true to auto-remove
-
-        newModalCancel.addEventListener('click', () => {
-            modal.classList.add('hidden');
-        }, { once: true });
-    }
-
-    // --- INITIALIZATION ---
-
-    window.onload = function() {
-        // Initialize Firebase
-        initFirebase();
-
-        // Setup navigation
-        document.querySelectorAll('.nav-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const viewId = e.currentTarget.getAttribute('data-view');
-                switchView(viewId);
-                if (viewId === 'admin-view') {
-                    checkAdminAccess(); // Check access every time admin view is opened
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top on view switch
-            });
-        });
-
-        // Render static content
-        renderTeamMembers();
-
-        // Default view
-        switchView('home-view');
+        // =================================================================
+        // FUNGSI NAVIGASI & CMS
+        // =================================================================
         
-        // Render Lucide icons
-        lucide.createIcons();
-    };
+        function navigate(pageId) {
+            // Sembunyikan semua halaman
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active-page');
+            });
 
-</script>
+            // Tampilkan halaman yang diminta
+            const targetPage = document.getElementById(pageId + '-page');
 
+            if (pageId === 'home' || pageId === 'cms') {
+                targetPage.classList.add('active-page');
+            } else if (pageId === 'produk' || pageId === 'anggota') {
+                // Untuk tombol cepat di menu bawah, scroll ke bagian yang sesuai di home-page
+                document.getElementById('home-page').classList.add('active-page');
+                const section = document.getElementById(pageId);
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        function loginCMS() {
+            const passwordInput = document.getElementById('cms-password');
+            if (passwordInput.value === CMS_PASSWORD) {
+                document.getElementById('cms-login').classList.add('hidden');
+                document.getElementById('cms-dashboard').classList.remove('hidden');
+                renderCMSLists();
+                renderOrders();
+                console.log('CMS Berhasil Login');
+            } else {
+                openModal('Login Gagal', 'Sandi CMS salah. Silakan coba lagi.', 'text-red-600');
+            }
+        }
+
+        function renderCMSLists() {
+            const prodList = document.getElementById('cms-product-list');
+            prodList.innerHTML = PRODUCTS.map(p => `<li>${p.name} - ${p.price === 0 ? 'Cek Tagihan' : `Rp ${p.price.toLocaleString('id-ID')}`}</li>`).join('');
+
+            const memList = document.getElementById('cms-member-list');
+            memList.innerHTML = MEMBERS.map(m => `<li>${m.name} (${m.position})</li>`).join('');
+        }
+
+        // =================================================================
+        // FUNGIONALITAS UTAMA
+        // =================================================================
+
+        document.getElementById('add-product-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newProduct = {
+                id: Date.now(),
+                name: document.getElementById('prod-name').value,
+                price: parseInt(document.getElementById('prod-price').value),
+                desc: document.getElementById('prod-desc').value,
+            };
+            PRODUCTS.unshift(newProduct);
+            localStorage.setItem('algorithmic_avengers_products', JSON.stringify(PRODUCTS));
+            renderProducts();
+            renderCMSLists();
+            e.target.reset();
+            openModal('Sukses', `Produk "${newProduct.name}" berhasil ditambahkan.`, 'text-red-700');
+        });
+
+        document.getElementById('add-member-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newMember = {
+                name: document.getElementById('mem-name').value,
+                position: document.getElementById('mem-pos').value,
+                photoUrl: document.getElementById('mem-photo').value,
+            };
+            MEMBERS.unshift(newMember);
+            localStorage.setItem('algorithmic_avengers_members', JSON.stringify(MEMBERS));
+            renderMembers();
+            renderCMSLists();
+            e.target.reset();
+            openModal('Sukses', `Anggota "${newMember.name}" berhasil ditambahkan.`, 'text-yellow-700');
+        });
+
+        // Event listener untuk tombol navigasi
+        document.querySelectorAll('.nav-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const page = button.getAttribute('data-page');
+                navigate(page);
+            });
+        });
+
+        // =================================================================
+        // MODAL (Menggantikan Alert/Confirm)
+        // =================================================================
+        
+        function openModal(title, body, titleColorClass = 'text-red-700') {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-title').className = `text-lg font-bold mb-2 ${titleColorClass}`;
+            document.getElementById('modal-body').textContent = body;
+            document.getElementById('custom-modal').classList.remove('hidden');
+            document.getElementById('custom-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+            document.getElementById('custom-modal').classList.remove('flex');
+        }
+
+
+        // =================================================================
+        // INITIALIZATION
+        // =================================================================
+        function initialize() {
+            // Load data dari Local Storage (Simulasi persistent data)
+            const storedProducts = localStorage.getItem('algorithmic_avengers_products');
+            const storedMembers = localStorage.getItem('algorithmic_avengers_members');
+            const storedOrders = localStorage.getItem('algorithmic_avengers_orders');
+
+            if (storedProducts) PRODUCTS = JSON.parse(storedProducts);
+            if (storedMembers) MEMBERS = JSON.parse(storedMembers);
+            if (storedOrders) ORDERS = JSON.parse(storedOrders);
+
+
+            renderProducts();
+            renderMembers();
+        }
+
+        window.onload = initialize;
+    </script>
 </body>
 </html>
-
